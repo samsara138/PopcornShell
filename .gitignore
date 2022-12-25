@@ -1,0 +1,13 @@
+
+build/victim/Analysis-00.toc
+build/victim/base_library.zip
+build/victim/EXE-00.toc
+build/victim/PKG-00.toc
+build/victim/PYZ-00.pyz
+build/victim/PYZ-00.toc
+build/victim/victim.exe.manifest
+build/victim/victim.pkg
+build/victim/warn-victim.txt
+build/victim/xref-victim.html
+dist/victim.exe
+victim.spec
