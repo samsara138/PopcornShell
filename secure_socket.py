@@ -3,6 +3,7 @@ import sys
 import time
 import PKCS7
 
+
 # A general purpose secure socket that ensure full data sending and reciving
 class SecureSocket:
     sock = None
@@ -12,7 +13,7 @@ class SecureSocket:
     connection = None
     payload_size = 300
 
-    def __init__(self, payload_size = 1024):
+    def __init__(self, payload_size=1024):
         # Create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.payload_size = payload_size
@@ -77,3 +78,19 @@ class SecureSocket:
         if post_process:
             payload = post_process(payload)
         return payload
+
+
+# Example code for setting up a server
+def setup_server():
+    secure_socket = SecureSocket()
+    secure_socket.wait_for_connection()
+    secure_socket.send("Hello world")
+    payload = secure_socket.receive()
+
+
+# Example code for setting up a client
+def setup_client():
+    secure_socket = SecureSocket()
+    secure_socket.connect()
+    data = secure_socket.receive()
+    secure_socket.send("Hello to you too")
