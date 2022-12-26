@@ -12,7 +12,6 @@ exit_flag = False
 
 
 # Custom command behaviour
-# Todo: generate command to enable ssh server for windows 10 and linux
 def parse_custom_command(cmd: str) -> str:
     global output_style
     global exit_flag
@@ -34,6 +33,7 @@ def create_socket():
     global output_style
     global exit_flag
 
+    # Create socket and wait for connection
     secure_socket = SecureSocket()
     secure_socket.wait_for_connection()
 
@@ -47,13 +47,14 @@ def create_socket():
             custom_command = command.split(" ")[1]
             command = parse_custom_command(custom_command)
 
-        # Skip empty command
+        # Skip empty command (new line)
         if len(command) == 0:
             continue
 
         # Send command
         payload = CommandPayload(command=command)
         packet = payload.pack()
+        # Send failed
         if not secure_socket.send(packet):
             print("Resetting connection")
             create_socket()

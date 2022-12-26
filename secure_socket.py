@@ -53,6 +53,8 @@ class SecureSocket:
         while len(payload) > 0:
             segments.append(payload[:self.payload_size])
             payload = payload[self.payload_size:]
+
+        # Adding end paddings
         if len(segments[-1]) == self.payload_size:
             empty_payload = PKCS7.pad(bytes(), self.payload_size, False)
             segments.append(empty_payload)

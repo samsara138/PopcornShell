@@ -36,7 +36,7 @@ def create_socket():
                 create_socket()
             else:
                 continue
-
+        # Parse received data
         command = payload.command
         print('Received:'.center(40, "="))
         print(command)
@@ -54,9 +54,8 @@ def create_socket():
         print(result)
         packet = payload.pack()
 
-        try:
-            secure_socket.send(packet)
-        except:
+        if not secure_socket.send(packet):
+            print("Connection lost")
             create_socket()
 
         if exit_flag:
