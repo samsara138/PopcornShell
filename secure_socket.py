@@ -53,6 +53,8 @@ class SecureSocket:
         while len(payload) > 0:
             segments.append(payload[:self.payload_size])
             payload = payload[self.payload_size:]
+
+        # Adding end paddings
         if len(segments[-1]) == self.payload_size:
             empty_payload = PKCS7.pad(bytes(), self.payload_size, False)
             segments.append(empty_payload)
@@ -61,7 +63,13 @@ class SecureSocket:
 
         active_connection = self.connection if self.connection else self.sock
         for segment in segments:
-            active_connection.send(segment)
+            try:
+                active_connection.send(segment)
+            except:
+                print("Connection broken")
+                self.close()
+                return False
+        return True
 
     # receive a payload, optional to have a post process function
     def receive(self, post_process=None):
@@ -69,7 +77,8 @@ class SecureSocket:
         active_socket = self.connection if self.connection else self.sock
 
         while True:
-            buffer = active_socket.recv(1024)
+            buffer = active_socket.recv(self.payload_size)
+
             if len(buffer) == 0:
                 return bytes()
             if PKCS7.is_padded(buffer, False)[0]:
@@ -80,6 +89,11 @@ class SecureSocket:
         if post_process:
             payload = post_process(payload)
         return payload
+
+    def close(self):
+        self.sock.close()
+        if self.connection:
+            self.connection.close()
 
 
 # Example code for setting up a server
