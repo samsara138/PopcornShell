@@ -54,10 +54,10 @@ class SecureSocket:
             segments.append(payload[:self.payload_size])
             payload = payload[self.payload_size:]
         if len(segments[-1]) == self.payload_size:
-            empty_payload = PKCS7.pad(bytes(), self.payload_size)
+            empty_payload = PKCS7.pad(bytes(), self.payload_size, False)
             segments.append(empty_payload)
         else:
-            segments[-1] = PKCS7.pad(segments[-1], self.payload_size)
+            segments[-1] = PKCS7.pad(segments[-1], self.payload_size, False)
 
         active_connection = self.connection if self.connection else self.sock
         for segment in segments:
@@ -70,8 +70,10 @@ class SecureSocket:
 
         while True:
             buffer = active_socket.recv(1024)
-            if PKCS7.is_padded(buffer)[0]:
-                payload += PKCS7.remove_padding(buffer)
+            if len(buffer) == 0:
+                return bytes()
+            if PKCS7.is_padded(buffer, False)[0]:
+                payload += PKCS7.remove_padding(buffer, False)
                 break
             payload += buffer
 
