@@ -1,8 +1,6 @@
 import socket
 import sys
 import time
-import PKCS7
-import codecs
 
 
 def print_bytes(data):
@@ -60,7 +58,7 @@ class SecureSocket:
             segments.append(payload[:self.payload_size])
             payload = payload[self.payload_size:]
 
-        # Adding end paddings
+        # Adding end segment
         empty_payload = bytes.fromhex("ff") * self.payload_size
         segments.append(empty_payload)
 
@@ -76,20 +74,17 @@ class SecureSocket:
 
     # receive a payload, optional to have a post process function
     def receive(self, post_process=None):
-        def is_end(buffer):
-            for b in buffer:
+        def is_end(snippet):
+            for b in snippet:
                 if b != 255:
                     return False
             return True
-
 
         payload = bytes()
         active_socket = self.connection if self.connection else self.sock
 
         while True:
             buffer = active_socket.recv(self.payload_size)
-            print("BUFFER".center(20,"*"))
-            print_bytes(buffer)
             if len(buffer) == 0:
                 return bytes()
             if is_end(buffer):
