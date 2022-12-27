@@ -39,9 +39,9 @@ class SecureSocket:
 
     # Server waiting for a connection
     def wait_for_connection(self, ip="0.0.0.0", port=7123):
-        server_address = (ip, port)
+        self.destination_address = (ip, port)
         # Bind the socket to accept any ip at port
-        self.sock.bind(server_address)
+        self.sock.bind(self.destination_address)
         print(f"Waiting for connection on {self.destination_address} ...")
         self.sock.listen()
         # Accept an incoming connection

