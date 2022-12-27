@@ -59,9 +59,10 @@ class SecureSocket:
             segments.append(payload[:self.payload_size])
             payload = payload[self.payload_size:]
 
-        # Adding end segment
-        empty_payload = bytes.fromhex("ff") * self.payload_size
-        segments.append(empty_payload)
+        data_packet = f'{len(segments)} {self.payload_size}'.encode()
+        data_packet += bytes.fromhex("00") * (self.payload_size - len(data_packet))
+        print("Data packet =>",data_packet)
+        segments.insert(0, data_packet)
 
         active_connection = self.connection if self.connection else self.sock
         for segment in segments:
@@ -75,26 +76,23 @@ class SecureSocket:
 
     # receive a payload, optional to have a post process function
     def receive(self, post_process=None):
-        def is_end(snippet):
-            for b in snippet:
-                if b != 255:
-                    return False
-            return True
-
         payload = bytes()
         active_socket = self.connection if self.connection else self.sock
 
         while True:
-            buffer = active_socket.recv(self.payload_size)
-            if len(buffer) == 0:
-                return bytes()
-            if is_end(buffer):
-                break
-            payload += buffer
+            info_packet = active_socket.recv(self.payload_size)
+            info_packet = info_packet.rstrip(b'\x00').decode().split(" ")
+            segment_count = int(info_packet[0])
+            sender_payload_size = int(info_packet[1])
 
-        if post_process:
-            payload = post_process(payload)
-        return payload
+            for i in range(segment_count):
+                segment = active_socket.recv(sender_payload_size)
+                if len(segment) == 0:
+                    return bytes()
+                payload += segment
+            if post_process:
+                payload = post_process(payload)
+            return payload
 
     def close(self):
         self.sock.close()
