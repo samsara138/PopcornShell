@@ -61,7 +61,6 @@ class SecureSocket:
 
         data_packet = f'{len(segments)} {self.payload_size}'.encode()
         data_packet += bytes.fromhex("00") * (self.payload_size - len(data_packet))
-        print("Data packet =>",data_packet)
         segments.insert(0, data_packet)
 
         active_connection = self.connection if self.connection else self.sock
