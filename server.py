@@ -120,6 +120,8 @@ Once connected, you can send shell command for the victim to execute
     - to use full output
 -> file [file_name]
     - to get a file
+-> screen 
+    - take a screen shot and send it back
 ======================================
 '''
     print(content)
