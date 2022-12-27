@@ -2,11 +2,13 @@ import socket
 import sys
 import time
 import PKCS7
+import codecs
 
 
 def print_bytes(data):
+    print(len(data))
     for i in data:
-        print(hex(i), end=" ")
+            print(hex(i), end=" ")
     print("\n\n")
 
 # A general purpose secure socket that ensure full data sending and reciving
@@ -57,7 +59,6 @@ class SecureSocket:
         segments = []
         while len(payload) > 0:
             segments.append(payload[:self.payload_size])
-            print_bytes(segments)
             payload = payload[self.payload_size:]
 
         # Adding end paddings
@@ -84,6 +85,7 @@ class SecureSocket:
 
         while True:
             buffer = active_socket.recv(self.payload_size)
+            print("BUFFER".center(20,"*"))
             print_bytes(buffer)
             if len(buffer) == 0:
                 return bytes()
