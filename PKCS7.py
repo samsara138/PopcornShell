@@ -50,6 +50,8 @@ def is_padded(data: bytes, echo=True) -> (bool, int):
     padding_length = 0
     padding_end_index = len(data) - 1
     padding_end = data[padding_end_index]
+    if padding_end <= 0:
+        return False, -1
     while True:
         padding_start_index = padding_end_index - padding_end
         padding_length += padding_end_index - padding_start_index

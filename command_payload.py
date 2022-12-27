@@ -1,6 +1,5 @@
 import pickle
 
-
 def parse_payload_to_output(raw_payload):
     payload = CommandPayload()
     payload.parse_packet(raw_payload)
@@ -8,13 +7,13 @@ def parse_payload_to_output(raw_payload):
 
 
 class CommandPayload:
-    command = ""
+    command = []
     stdout = ""
     stderr = ""
     file = None
     file_name = ""
 
-    def __init__(self, stdout="", stderr="", command="", file=None, file_name=""):
+    def __init__(self, stdout="", stderr="", command=[], file=None, file_name=""):
         self.stdout = stdout
         self.stderr = stderr
         self.command = command
@@ -23,16 +22,14 @@ class CommandPayload:
 
     # Compile data to a low profile packet
     def pack(self):
-        packet = [self.command, self.stdout, self.stderr]
+        packet = [self.command, self.stdout, self.stderr, self.file, self.file_name]
         packet = pickle.dumps(packet)
         return packet
 
     # parse packet to data
     def parse_packet(self, packet):
         data = pickle.loads(packet)
-        self.command = data[0]
-        self.stdout = data[1]
-        self.stderr = data[2]
+        self.command, self.stdout, self.stderr, self.file, self.file_name = data
 
     # Format payload to string output
     def formatted_output(self, output_style):
@@ -53,9 +50,14 @@ class CommandPayload:
 
     def __str__(self):
         result = ""
-        result += "command -> " + str(self.command)
-        result += "stdout -> " + str(self.stdout)
-        result += "stderr -> " + str(self.stderr)
-        result += "Has file -> " + str(self.file is not None)
-        result += "file name -> " + str(self.file_name)
+        result += "command -> " + str(self.command) + '\n'
+        result += "stdout -> " + str(self.stdout) + '\n'
+        result += "stderr -> " + str(self.stderr) + '\n'
+
+        if self.file is not None:
+            result += "file -> "
+            for byte in self.file:
+                result += f"{byte} "
+            result += "\n\n"
+            result += "file name -> " + str(self.file_name) + '\n'
         return result

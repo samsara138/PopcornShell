@@ -4,6 +4,11 @@ import time
 import PKCS7
 
 
+def print_bytes(data):
+    for i in data:
+        print(hex(i), end=" ")
+    print("\n\n")
+
 # A general purpose secure socket that ensure full data sending and reciving
 class SecureSocket:
     sock = None
@@ -11,9 +16,9 @@ class SecureSocket:
 
     # For server
     connection = None
-    payload_size = 300
+    payload_size = 1024
 
-    def __init__(self, payload_size=1024):
+    def __init__(self, payload_size=100):
         # Create a TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.payload_size = payload_size
@@ -29,7 +34,7 @@ class SecureSocket:
                 print("Connected!")
                 break
             except:
-                print("Trying to connect to server ...")
+                print(f"Trying to connect to server at {self.destination_address}...")
                 time.sleep(1)
 
     # Server waiting for a connection
@@ -78,7 +83,6 @@ class SecureSocket:
 
         while True:
             buffer = active_socket.recv(self.payload_size)
-
             if len(buffer) == 0:
                 return bytes()
             if PKCS7.is_padded(buffer, False)[0]:
