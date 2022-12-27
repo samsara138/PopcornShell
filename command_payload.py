@@ -11,11 +11,15 @@ class CommandPayload:
     command = ""
     stdout = ""
     stderr = ""
+    file = None
+    file_name = ""
 
-    def __init__(self, stdout="", stderr="", command=""):
+    def __init__(self, stdout="", stderr="", command="", file=None, file_name=""):
         self.stdout = stdout
         self.stderr = stderr
         self.command = command
+        self.file = file
+        self.file_name = file_name
 
     # Compile data to a low profile packet
     def pack(self):
@@ -26,16 +30,9 @@ class CommandPayload:
     # parse packet to data
     def parse_packet(self, packet):
         data = pickle.loads(packet)
-
         self.command = data[0]
         self.stdout = data[1]
         self.stderr = data[2]
-        result = {
-            "command": data[0],
-            "stdout": data[1],
-            "stderr": data[2]
-        }
-        return result
 
     # Format payload to string output
     def formatted_output(self, output_style):
@@ -52,4 +49,13 @@ class CommandPayload:
                 result += str(self.stderr) + '\n'
         else:
             result += self.stdout + '\n' + self.stderr
+        return result
+
+    def __str__(self):
+        result = ""
+        result += "command -> " + str(self.command)
+        result += "stdout -> " + str(self.stdout)
+        result += "stderr -> " + str(self.stderr)
+        result += "Has file -> " + str(self.file is not None)
+        result += "file name -> " + str(self.file_name)
         return result
