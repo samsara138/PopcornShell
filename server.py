@@ -126,7 +126,6 @@ Once connected, you can send shell command for the victim to execute
 '''
     print(content)
 
-
 def main():
     show_logo()
     if len(sys.argv) > 1:

