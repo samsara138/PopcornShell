@@ -42,7 +42,7 @@ class SecureSocket:
         server_address = (ip, port)
         # Bind the socket to accept any ip at port
         self.sock.bind(server_address)
-        print("Waiting for connection ...")
+        print(f"Waiting for connection on {self.destination_address} ...")
         self.sock.listen()
         # Accept an incoming connection
         self.connection, self.destination_address = self.sock.accept()
@@ -57,6 +57,7 @@ class SecureSocket:
         segments = []
         while len(payload) > 0:
             segments.append(payload[:self.payload_size])
+            print_bytes(segments)
             payload = payload[self.payload_size:]
 
         # Adding end paddings
@@ -83,6 +84,7 @@ class SecureSocket:
 
         while True:
             buffer = active_socket.recv(self.payload_size)
+            print_bytes(buffer)
             if len(buffer) == 0:
                 return bytes()
             if PKCS7.is_padded(buffer, False)[0]:

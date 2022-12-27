@@ -85,7 +85,7 @@ def create_socket():
             else:
                 continue
         if payload.file is not None:
-            with open(payload.file_name, "w") as file:
+            with open(payload.file_name, "wb") as file:
                 file.write(payload.file)
         else:
             print(payload.formatted_output(output_style))
