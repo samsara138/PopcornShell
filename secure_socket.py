@@ -1,12 +1,9 @@
 import socket
 import sys
 import time
-import PKCS7
-import codecs
 
 
 def print_bytes(data):
-    print(len(data))
     for i in data:
             print(hex(i), end=" ")
     print("\n\n")
@@ -61,12 +58,9 @@ class SecureSocket:
             segments.append(payload[:self.payload_size])
             payload = payload[self.payload_size:]
 
-        # Adding end paddings
-        if len(segments[-1]) == self.payload_size:
-            empty_payload = PKCS7.pad(bytes(), self.payload_size, False)
-            segments.append(empty_payload)
-        else:
-            segments[-1] = PKCS7.pad(segments[-1], self.payload_size, False)
+        # Adding end segment
+        empty_payload = bytes.fromhex("ff") * self.payload_size
+        segments.append(empty_payload)
 
         active_connection = self.connection if self.connection else self.sock
         for segment in segments:
@@ -80,17 +74,20 @@ class SecureSocket:
 
     # receive a payload, optional to have a post process function
     def receive(self, post_process=None):
+        def is_end(snippet):
+            for b in snippet:
+                if b != 255:
+                    return False
+            return True
+
         payload = bytes()
         active_socket = self.connection if self.connection else self.sock
 
         while True:
             buffer = active_socket.recv(self.payload_size)
-            print("BUFFER".center(20,"*"))
-            print_bytes(buffer)
             if len(buffer) == 0:
                 return bytes()
-            if PKCS7.is_padded(buffer, False)[0]:
-                payload += PKCS7.remove_padding(buffer, False)
+            if is_end(buffer):
                 break
             payload += buffer
 

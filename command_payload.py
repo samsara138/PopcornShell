@@ -57,7 +57,7 @@ class CommandPayload:
         if self.file is not None:
             result += "file -> "
             for byte in self.file:
-                result += f"{byte} "
+                result += f"{hex(byte)} "
             result += "\n\n"
             result += "file name -> " + str(self.file_name) + '\n'
         return result
