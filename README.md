@@ -31,3 +31,22 @@ The executable will be compiled in the 'dist' folder. It won't show any prompt w
 ```
 pyinstaller --onefile --noconsole victim.py
 ```
+
+## Custom commands
+Custom commands are special commands that doesn't directly translate to the shell script to be executed by the victim
+```
+-> help
+    - to see this page
+-> exit 
+    - to exit shell locally, victim return to trying to connect
+-> exit_full 
+    - to let victim exit too
+-> simple
+    - to simplify output
+-> full
+    - to use full output
+-> file [file_name]
+    - to get a file
+-> screen 
+    - take a screen shot and send it back
+```
