@@ -44,4 +44,5 @@ Custom commands are special commands that doesn't directly translate to the shel
 2. Remove registery entry `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\PopcornShell`
 
 ## ScreenShots
-[logo]: https://github.com/samsara138/PopcornShell/blob/main/Screenshots/ConnectedView.jpg "ConnectedView"
+
+![alt text](https://github.com/samsara138/PopcornShell/blob/main/Screenshots/ConnectedView.jpg?raw=true "ConnectedView")
