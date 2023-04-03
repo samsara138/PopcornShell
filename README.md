@@ -1,6 +1,8 @@
 # PopcornShell
 A simple python reverse shell project
 
+Unfortunately, this script can be detected by Windows Defender with a recent update
+
 ## Introduction
 The attacker host a server, await for the victim to execute the file
 
