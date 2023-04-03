@@ -19,6 +19,11 @@ Run the helper script
 ```
 python3 run.py
 ```
+In build victim mode, make sure your OS is the same as the victim so the built binary is compatible. Also make sure the server is reachable by the victim and not blocked by a firewall, etc. Input the server IP and port so the victim knows where to connect to.
+
+In hosting server mode, make sure the selected port is the same as where the victim is trying to connect to.
+
+Note that although the binary need to be compiled with the same OS as the victim, actual execution and connection don't require that attacker and victim to have the same OS.
 
 ## Custom commands
 Custom commands are special commands that doesn't directly translate to the shell script to be executed by the victim
