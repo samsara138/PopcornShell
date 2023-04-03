@@ -8,28 +8,16 @@ The victim file will constantly try to connect to the specified server.
 
 Once a connection is established, the attacker can send commands to the victim which the script will execute
 
+On Windows, the binary will copy itself to `C:\Users\{Username}\AppData\Roaming` and add that file to the registery `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run` so it start with OS
+
 ## How to run
-Install requirments (none so far)
+First, install requirments
 ```
 pip3 install -r requirements.txt
 ```
-
-### Attacker
-Before running the script, the port can be changed if desired by directly changing the script
+Run the helper script
 ```
-python3 server.py
-```
-
-### Victim
-Before running the script, change the server ip to the attacker's ip by directly changing the script. The port can also be changed according
-```
-python3 victim.py
-```
-
-You may also wish to compile the victim script to an exe with hidden execution (require pyinstaller)
-The executable will be compiled in the 'dist' folder. It won't show any prompt when executed
-```
-pyinstaller --onefile --noconsole victim.py
+python3 run.py
 ```
 
 ## Custom commands
@@ -50,3 +38,10 @@ Custom commands are special commands that doesn't directly translate to the shel
 -> screen 
     - take a screen shot and send it back
 ```
+
+## How to remove persistency on Windows
+1. Remove the file `C:\Users\{Username}\AppData\Roaming\PopcornShell.exe`
+2. Remove registery entry `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\PopcornShell`
+
+## ScreenShots
+[logo]: https://github.com/samsara138/PopcornShell/blob/main/Screenshots/ConnectedView.jpg "ConnectedView"
